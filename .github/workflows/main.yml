@@ -1,0 +1,31 @@
+name: ML Model Training CI
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  train-and-log-model:
+    runs-on: ubuntu-latest
+
+    env:
+      MLFLOW_TRACKING_URI: http://localhost:5000 # Вместо локалхоста нужно разместить URI до публичного MLFlow сервера, но можно временно пробросить через ngrok локальный Docker
+      PYTHON_VERSION: '3.9'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run ML training script
+        run: python train_housing.py --n_estimators 120 --max_depth 18 --random_state 123
